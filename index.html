@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dinner Monster - Kasir Restoran</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Fredoka', cursive, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #game-container {
+      width: 1000px;
+      background-color: #f7f5ff;
+      border: 5px solid #1a1a1a;
+      border-radius: 35px;
+      padding: 25px;
+      box-shadow: 0 15px 0px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    /* Top Bar Header */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 15px;
+    }
+
+    .pill-box {
+      background: white;
+      border: 4px solid #1a1a1a;
+      border-radius: 25px;
+      padding: 8px 25px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      box-shadow: 0 4px 0 #1a1a1a;
+      color: #1a1a1a;
+    }
+
+    .pill-box span {
+      color: #e63946;
+    }
+
+    .bgm-btn {
+      background: white;
+      border: 4px solid #1a1a1a;
+      border-radius: 25px;
+      padding: 8px 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #1a1a1a;
+      transition: transform 0.1s;
+    }
+
+    .bgm-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #1a1a1a;
+    }
+
+    .banner-instruction {
+      background-color: #ffb703;
+      border: 4px solid #1a1a1a;
+      border-radius: 20px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 0 #1a1a1a;
+    }
+
+    /* Layout 3 Kolom */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 260px;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: white;
+      border: 4px solid #1a1a1a;
+      border-radius: 25px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #8d99ae;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
+
+    .avatar-box {
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .game-panel {
+      justify-content: space-between;
+    }
+
+    .sub-banner {
+      background: #ffe3a8;
+      border: 3px solid #1a1a1a;
+      border-radius: 15px;
+      padding: 15px;
+      width: 100%;
+      font-weight: 700;
+      color: #1a1a1a;
+      font-size: 1.05rem;
+      line-height: 1.4;
+    }
+
+    /* Display Area (Kotak Tempat Target Drop/Jawaban) */
+    .display-box {
+      width: 100%;
+      border: 3px dashed #ff8fa3;
+      background: #fff5f7;
+      border-radius: 20px;
+      padding: 15px;
+      margin: 15px 0;
+      min-height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      transition: background-color 0.2s;
+    }
+
+    .display-box.drag-over {
+      background-color: #ffe0e9;
+      border-color: #ff4d6d;
+    }
+
+    .char-slot {
+      width: 32px;
+      height: 40px;
+      border-bottom: 4px solid #1a1a1a;
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+    }
+
+    .money-tag {
+      background: #2a9d8f;
+      color: white;
+      border: 2px solid #1a1a1a;
+      border-radius: 10px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    /* Opsi Jawaban (Drag or Click) */
+    .options-container {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+      min-height: 48px;
+    }
+
+    .option-btn {
+      background: #4cc9f0;
+      color: white;
+      border: 3px solid #1a1a1a;
+      border-radius: 15px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: grab;
+      box-shadow: 0 4px 0 #1a1a1a;
+      transition: all 0.1s ease;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-2px);
+      background: #3a86ff;
+    }
+
+    .option-btn:active {
+      cursor: grabbing;
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #1a1a1a;
+    }
+
+    .option-btn.selected {
+      background: #ff4d6d !important;
+      transform: scale(1.05);
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .total-text {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1a1a1a;
+    }
+
+    .total-text span {
+      color: #e63946;
+    }
+
+    .btn-small {
+      border: 3px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 6px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+      box-shadow: 0 3px 0 #1a1a1a;
+    }
+
+    .btn-yellow { background: #ffb703; }
+    .btn-red { background: #ff4d6d; color: white; }
+
+    .money-buttons {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .btn-money {
+      flex: 1;
+      padding: 10px 0;
+      border: 3px solid #1a1a1a;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #1a1a1a;
+      transition: transform 0.1s;
+      font-size: 0.9rem;
+    }
+
+    .btn-money:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #1a1a1a;
+    }
+
+    .m-1k { background: #8d99ae; }
+    .m-2k { background: #7209b7; }
+    .m-5k { background: #f77f00; }
+    .m-10k { background: #d62828; }
+    .m-20k { background: #2a9d8f; }
+
+    .btn-submit {
+      width: 100%;
+      background: #38b000;
+      color: white;
+      border: 4px solid #1a1a1a;
+      border-radius: 25px;
+      padding: 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #1a1a1a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-submit:hover { background: #2dc653; }
+    .btn-submit:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #1a1a1a;
+    }
+
+    .hidden { display: none !important; }
+
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      padding: 20px;
+    }
+
+    .overlay h1 {
+      font-size: 2.2rem;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    
+    <!-- Top Header -->
+    <div class="header-bar">
+      <div class="pill-box">SKOR: <span id="score-text">0</span></div>
+      <div class="pill-box">PELANGGAN: <span id="cust-count">1/6</span></div>
+      <button class="bgm-btn" id="bgm-btn">🎵 BGM: ON</button>
+    </div>
+
+    <!-- Instruction Banner -->
+    <div class="banner-instruction" id="banner-text">
+      🧮 Seret / Klik pilihan jawaban untuk menyajikan pesanan!
+    </div>
+
+    <!-- Main 3-Column Layout -->
+    <div class="main-layout">
+      
+      <!-- Kolom 1: Monster -->
+      <div class="card">
+        <div class="card-title" id="monster-title">PINKY SI MONSTER</div>
+        <div class="avatar-box">
+          <svg id="monster-svg" width="120" height="120" viewBox="0 0 100 100"></svg>
+        </div>
+      </div>
+
+      <!-- Kolom 2: Game Interactive Panel -->
+      <div class="card game-panel">
+        <div class="card-title" id="phase-title">TAHAP 1: TEBAK PESANAN</div>
+        
+        <div class="sub-banner" id="problem-text">
+          "Monster mau pesan sesuatu..."
+        </div>
+
+        <!-- Area Drop / Display Jawaban -->
+        <div class="display-box" id="display-area"></div>
+
+        <!-- Opsi Pilihan Jawaban (Hanya Tahap 1) -->
+        <div class="options-container" id="options-group"></div>
+
+        <!-- Action Row -->
+        <div class="action-row">
+          <div class="total-text" id="total-label">Total: <span>Rp 0</span></div>
+          <div style="display: flex; gap: 5px;">
+            <button class="btn-small btn-yellow" id="btn-hint">Bantuan 💡</button>
+            <button class="btn-small btn-red" id="btn-reset">Reset 🔄</button>
+          </div>
+        </div>
+
+        <!-- Money Buttons (Hanya Tahap 2) -->
+        <div class="money-buttons hidden" id="money-group">
+          <button class="btn-money m-1k" onclick="addMoney(1000)">Rp1k</button>
+          <button class="btn-money m-2k" onclick="addMoney(2000)">Rp2k</button>
+          <button class="btn-money m-5k" onclick="addMoney(5000)">Rp5k</button>
+          <button class="btn-money m-10k" onclick="addMoney(10000)">Rp10k</button>
+          <button class="btn-money m-20k" onclick="addMoney(20000)">Rp20k</button>
+        </div>
+
+        <button class="btn-submit" id="btn-main">KIRIM PESANAN 🛍️</button>
+      </div>
+
+      <!-- Kolom 3: Kasir -->
+      <div class="card">
+        <div class="card-title">KASIR RESTO</div>
+        <div class="avatar-box">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="40" r="22" fill="#fec89a" stroke="#1a1a1a" stroke-width="3"/>
+            <path d="M 30 28 Q 50 15 70 28" fill="none" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+            <rect x="30" y="24" width="40" height="7" fill="#38b000" rx="3" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="43" cy="38" r="3" fill="#1a1a1a"/>
+            <circle cx="57" cy="38" r="3" fill="#1a1a1a"/>
+            <path d="M 44 48 Q 50 53 56 48" fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/>
+            <rect x="25" y="62" width="50" height="30" fill="#48cae4" stroke="#1a1a1a" stroke-width="3" rx="5"/>
+            <rect x="20" y="75" width="60" height="18" fill="#d8f3dc" stroke="#1a1a1a" stroke-width="3" rx="4"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Start Overlay Screen -->
+    <div class="overlay" id="start-screen">
+      <h1>DINNER MONSTER 🍽️</h1>
+      <p style="margin-bottom: 20px; text-align: center; color: #555;">
+        Bantu Kasir melayani 6 pelanggan monster!<br>
+        Klik atau Seret pilihan makanan, lalu hitung jumlah uang bayarnya!
+      </p>
+      <button class="btn-submit" style="width: auto; padding: 12px 40px;" id="btn-start">MULAI GAME</button>
+    </div>
+
+    <!-- Game Over Overlay Screen -->
+    <div class="overlay hidden" id="end-screen">
+      <h1 id="end-title">SELAMAT! 🎉</h1>
+      <p id="end-msg" style="margin-bottom: 20px; font-size: 1.2rem;">Kamu berhasil melayani semua monster!</p>
+      <button class="btn-submit" style="width: auto; padding: 12px 40px;" id="btn-restart">MAIN LAGI</button>
+    </div>
+
+  </div>
+
+  <script>
+    const MONSTER_DESIGNS = [
+      `<path d="M 20 80 Q 20 25 50 25 Q 80 25 80 80 Z" fill="#ff70a6" stroke="#1a1a1a" stroke-width="4"/>
+       <polygon points="30,28 22,10 38,22" fill="#ffd166" stroke="#1a1a1a" stroke-width="3"/>
+       <polygon points="70,28 78,10 62,22" fill="#ffd166" stroke="#1a1a1a" stroke-width="3"/>
+       <circle cx="38" cy="50" r="5" fill="#1a1a1a"/><circle cx="62" cy="50" r="5" fill="#1a1a1a"/>
+       <path d="M 40 65 Q 50 75 60 65" fill="none" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>`,
+      
+      `<path d="M 15 75 Q 10 30 50 20 Q 90 30 85 75 Q 50 90 15 75 Z" fill="#06d6a0" stroke="#1a1a1a" stroke-width="4"/>
+       <circle cx="50" cy="42" r="12" fill="white" stroke="#1a1a1a" stroke-width="3"/>
+       <circle cx="50" cy="42" r="5" fill="#1a1a1a"/>
+       <path d="M 35 65 Q 50 55 65 65" fill="none" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>`,
+
+      `<rect x="25" y="30" width="50" height="55" rx="20" fill="#118ab2" stroke="#1a1a1a" stroke-width="4"/>
+       <path d="M 50 10 Q 30 20 30 30 Z" fill="#ef476f" stroke="#1a1a1a" stroke-width="3"/>
+       <circle cx="40" cy="48" r="4" fill="#1a1a1a"/><circle cx="60" cy="48" r="4" fill="#1a1a1a"/>
+       <path d="M 38 68 L 62 68" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round"/>`
+    ];
+
+    const GAME_DATA = [
+      { 
+        name: "PINKY SI MONSTER", svgIdx: 0, food: "DONAT", clue: "D _ N _ T", 
+        options: ["DONAT", "PASTA", "BURGER", "ROTI"],
+        items: [{n:"Donat", p:8000}, {n:"Susu", p:5000}] 
+      },
+      { 
+        name: "BLOBBY HIJAU", svgIdx: 1, food: "BURGER", clue: "B _ R G _ R", 
+        options: ["PIZZA", "BURGER", "KABOB", "STEAK"],
+        items: [{n:"Burger", p:15000}, {n:"Ketan", p:4000}] 
+      },
+      { 
+        name: "ZOG SI TANDUK", svgIdx: 2, food: "PIZZA", clue: "P _ Z Z _", 
+        options: ["RAMEN", "SUSHI", "PIZZA", "NACHO"],
+        items: [{n:"Pizza", p:20000}, {n:"Jus", p:7000}] 
+      },
+      { 
+        name: "GORT OREN", svgIdx: 0, food: "RAMEN", clue: "R _ M _ N", 
+        options: ["SOBA", "RAMEN", "BAKSO", "BIHUN"],
+        items: [{n:"Ramen", p:18000}, {n:"Teh", p:3000}] 
+      },
+      { 
+        name: "KIKO MATA SATU", svgIdx: 1, food: "SUSHI", clue: "S _ S H _", 
+        options: ["SUSHI", "BENTO", "KEBAB", "TAKO"],
+        items: [{n:"Sushi", p:12000}, {n:"Ocha", p:5000}] 
+      },
+      { 
+        name: "MUMU UNYU", svgIdx: 2, food: "ES KRIM", clue: "E _   K R _ M", 
+        options: ["PUDING", "ES KRIM", "CREPES", "DONAT"],
+        items: [{n:"Es Krim", p:6000}, {n:"Wafel", p:9000}] 
+      }
+    ];
+
+    // --- GAME STATE ---
+    let currentCustIdx = 0;
+    let currentPhase = 1;
+    let score = 0;
+    let insertedMoney = [];
+    let currentTargetTotal = 0;
+    let selectedOption = "";
+
+    // --- AUDIO SYNTHESIZER ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let bgmOn = true;
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'click') {
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+      } else if (type === 'win') {
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+      }
+    }
+
+    // --- DOM ELEMENTS ---
+    const elScore = document.getElementById('score-text');
+    const elCustCount = document.getElementById('cust-count');
+    const elMonsterTitle = document.getElementById('monster-title');
+    const elMonsterSvg = document.getElementById('monster-svg');
+    const elPhaseTitle = document.getElementById('phase-title');
+    const elProblemText = document.getElementById('problem-text');
+    const elDisplayArea = document.getElementById('display-area');
+    const elOptionsGroup = document.getElementById('options-group');
+    const elTotalLabel = document.getElementById('total-label');
+    const elMoneyGroup = document.getElementById('money-group');
+    const elBtnMain = document.getElementById('btn-main');
+    const elStartScreen = document.getElementById('start-screen');
+    const elEndScreen = document.getElementById('end-screen');
+    const elBgmBtn = document.getElementById('bgm-btn');
+
+    // --- EVENT LISTENERS ---
+    document.getElementById('btn-start').addEventListener('click', () => {
+      playSound('click');
+      elStartScreen.classList.add('hidden');
+      initGame();
+    });
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      playSound('click');
+      elEndScreen.classList.add('hidden');
+      initGame();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      playSound('click');
+      if (currentPhase === 1) {
+        selectedOption = "";
+        renderPhase1Slots();
+        document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+      } else {
+        insertedMoney = [];
+        updateMoneyDisplay();
+      }
+    });
+
+    document.getElementById('btn-hint').addEventListener('click', () => {
+      playSound('click');
+      const data = GAME_DATA[currentCustIdx];
+      if (currentPhase === 1) {
+        alert(`Petunjuk: Makanan ini berawal dari huruf "${data.food[0]}"`);
+      } else {
+        alert(`Petunjuk: Total bayar adalah Rp ${currentTargetTotal.toLocaleString('id-ID')}`);
+      }
+    });
+
+    elBgmBtn.addEventListener('click', () => {
+      bgmOn = !bgmOn;
+      elBgmBtn.textContent = bgmOn ? "🎵 BGM: ON" : "🔇 BGM: OFF";
+    });
+
+    elBtnMain.addEventListener('click', handleMainAction);
+
+    // Setup Drag & Drop Listener untuk Display Box
+    elDisplayArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (currentPhase === 1) elDisplayArea.classList.add('drag-over');
+    });
+
+    elDisplayArea.addEventListener('dragleave', () => {
+      elDisplayArea.classList.remove('drag-over');
+    });
+
+    elDisplayArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      elDisplayArea.classList.remove('drag-over');
+      if (currentPhase === 1) {
+        const word = e.dataTransfer.getData('text/plain');
+        if (word) selectOptionWord(word);
+      }
+    });
+
+    // --- LOGIC GAME ---
+    function initGame() {
+      score = 0;
+      currentCustIdx = 0;
+      elScore.textContent = score;
+      loadCustomer();
+    }
+
+    function loadCustomer() {
+      currentPhase = 1;
+      selectedOption = "";
+      const data = GAME_DATA[currentCustIdx];
+      
+      elCustCount.textContent = `${currentCustIdx + 1}/${GAME_DATA.length}`;
+      elMonsterTitle.textContent = data.name;
+      elMonsterSvg.innerHTML = MONSTER_DESIGNS[data.svgIdx];
+
+      elPhaseTitle.textContent = "TAHAP 1: TEBAK PESANAN";
+      elProblemText.innerHTML = `🍕 "Aku mau pesan <b>${data.clue}</b>! Klik atau seret jawabannya!"`;
+      
+      elTotalLabel.classList.add('hidden');
+      elMoneyGroup.classList.add('hidden');
+      elOptionsGroup.classList.remove('hidden');
+
+      renderPhase1Slots();
+      renderOptions();
+
+      elBtnMain.textContent = "SAJIKAN PESANAN 🍽️";
+      elBtnMain.style.background = "#38b000";
+    }
+
+    function renderPhase1Slots() {
+      const data = GAME_DATA[currentCustIdx];
+      elDisplayArea.innerHTML = "";
+
+      const textToShow = selectedOption !== "" ? selectedOption : data.clue.replace(/_/g, " ");
+
+      for (let char of textToShow) {
+        const slot = document.createElement('div');
+        if (char === ' ') {
+          slot.style.width = '15px';
+        } else {
+          slot.className = 'char-slot';
+          slot.textContent = char;
+          if (selectedOption !== "") slot.style.color = "#38b000";
+        }
+        elDisplayArea.appendChild(slot);
+      }
+    }
+
+    function renderOptions() {
+      const data = GAME_DATA[currentCustIdx];
+      elOptionsGroup.innerHTML = "";
+
+      // Acak urutan opsi pilihan
+      const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+      shuffledOptions.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.draggable = true;
+
+        // Event Klik
+        btn.addEventListener('click', () => selectOptionWord(opt));
+
+        // Event Drag
+        btn.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', opt);
+        });
+
+        elOptionsGroup.appendChild(btn);
+      });
+    }
+
+    function selectOptionWord(word) {
+      playSound('click');
+      selectedOption = word;
+      renderPhase1Slots();
+
+      // Highlight tombol terdeteksi
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        if (btn.textContent === word) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
+    }
+
+    function handleMainAction() {
+      playSound('click');
+      const data = GAME_DATA[currentCustIdx];
+
+      if (currentPhase === 1) {
+        if (selectedOption === "") {
+          alert("Pilih atau seret salah satu jawaban dulu!");
+          return;
+        }
+
+        if (selectedOption === data.food) {
+          playSound('win');
+          score += 100;
+          elScore.textContent = score;
+          setupPhase2();
+        } else {
+          playSound('wrong');
+          alert("Pesanan salah! Coba pilihan jawaban yang lain!");
+        }
+      } else {
+        const currentTotal = insertedMoney.reduce((a, b) => a + b, 0);
+        if (currentTotal === currentTargetTotal) {
+          playSound('win');
+          score += 200;
+          elScore.textContent = score;
+
+          currentCustIdx++;
+          if (currentCustIdx < GAME_DATA.length) {
+            alert("Transaksi Sukses! Pelanggan Puas! ✨");
+            loadCustomer();
+          } else {
+            document.getElementById('end-msg').textContent = `Total Skor Akhir Kamu: ${score}`;
+            elEndScreen.classList.remove('hidden');
+          }
+        } else {
+          playSound('wrong');
+          alert(`Uang tidak pas! Diterima: Rp ${currentTotal.toLocaleString('id-ID')}, Seharusnya: Rp ${currentTargetTotal.toLocaleString('id-ID')}`);
+        }
+      }
+    }
+
+    function setupPhase2() {
+      currentPhase = 2;
+      insertedMoney = [];
+      const data = GAME_DATA[currentCustIdx];
+
+      const item1 = data.items[0];
+      const item2 = data.items[1];
+      currentTargetTotal = item1.p + item2.p;
+
+      elPhaseTitle.textContent = "TAHAP 2: TANTANGAN MATEMATIKA KASIR";
+      elProblemText.innerHTML = `🍩 <b>${data.name}</b> beli <b>1 ${item1.n} (Rp ${item1.p.toLocaleString('id-ID')}) + 1 ${item2.n} (Rp ${item2.p.toLocaleString('id-ID')})</b>.<br>Masukkan total bayarnya!`;
+
+      elOptionsGroup.classList.add('hidden');
+      elMoneyGroup.classList.remove('hidden');
+      elTotalLabel.classList.remove('hidden');
+
+      updateMoneyDisplay();
+
+      elBtnMain.textContent = "BAYAR SEKARANG 💰";
+      elBtnMain.style.background = "#38b000";
+    }
+
+    function addMoney(amount) {
+      playSound('click');
+      insertedMoney.push(amount);
+      updateMoneyDisplay();
+    }
+
+    function updateMoneyDisplay() {
+      elDisplayArea.innerHTML = "";
+      
+      if (insertedMoney.length === 0) {
+        elDisplayArea.innerHTML = `<span style="color: #8d99ae; font-weight: 700;">Klik Uang untuk Memasukkan 💵</span>`;
+      } else {
+        insertedMoney.forEach(m => {
+          const tag = document.createElement('div');
+          tag.className = 'money-tag';
+          tag.textContent = `+Rp${m/1000}k`;
+          elDisplayArea.appendChild(tag);
+        });
+      }
+
+      const total = insertedMoney.reduce((a, b) => a + b, 0);
+      elTotalLabel.innerHTML = `Total: <span>Rp ${total.toLocaleString('id-ID')}</span>`;
+    }
+  </script>
+</body>
+</html>
